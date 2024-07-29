@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Your Name",
-  "license": "ISC",
+  "author": "cnrenil & GPT4o",
+  "license": "MIT",
   "dependencies": {
     "puppeteer": "^13.0.0"
   }
