@@ -9,7 +9,7 @@ $coverUrl = isset($_GET['cover']) ? $_GET['cover'] : 'cover.jpg';
 $title = isset($_GET['title']) ? $_GET['title'] : 'Sample Song';
 $artist = isset($_GET['artist']) ? $_GET['artist'] : 'Sample Artist';
 $lyricsUrl = isset($_GET['lyrics']) ? $_GET['lyrics'] : '';
-$maxLines = 100; // 最大行数限制
+$maxLines = 150; // 最大行数限制
 
 // 下载歌词内容
 if ($lyricsUrl) {
@@ -42,7 +42,7 @@ $template = str_replace("[Music::LYRICS]", $lyrics, $template);
 // 生成截图并直接输出
 header('Content-Type: image/png');
 echo Browsershot::html($template)
-    ->windowSize(1000, 800) // 设置初始窗口大小，可以根据需要调整
+    ->windowSize(1200, 675) // 设置初始窗口大小，可以根据需要调整
     ->fullPage() // 截取整个页面
     ->screenshot();
 
