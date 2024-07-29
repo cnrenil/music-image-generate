@@ -2,6 +2,10 @@
 
 音乐图片生成
 
+# 使用
+`composer install`和`pnpm install`（其实npm也可以）
+GET传入参数：title标题，artist作者，cover封面链接，lyrics歌词链接即可
+
 # 预览
 
 ![1000498757.png](https://img.renil.cc/i/2024/07/29/66a6f0bcbaf5c.png)
