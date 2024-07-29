@@ -1,0 +1,15 @@
+{
+  "name": "music-player-screenshot",
+  "version": "1.0.0",
+  "description": "A project to generate screenshots of a music player webpage using Puppeteer",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Your Name",
+  "license": "ISC",
+  "dependencies": {
+    "puppeteer": "^13.0.0"
+  }
+}
+
