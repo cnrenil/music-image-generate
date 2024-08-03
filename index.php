@@ -39,8 +39,20 @@ if ($template === false) {
     die("Error reading template file.");
 }
 
+// 将字体文件转换为Base64编码
+$fontPath = __DIR__ . '/fonts/HanYiWenHei/HYWenHei-65W-3.ttf';
+$fontData = base64_encode(file_get_contents($fontPath));
+$fontFace = "
+<style>
+@font-face {
+    font-family: 'HanYiWenHei';
+    src: url(data:font/ttf;base64,$fontData) format('truetype');
+}
+</style>";
+
 // 替换占位符
 $placeholders = [
+    "[Music::FONT_FACE]" => $fontFace,
     "[Music::IMAGE]" => $coverUrl,
     "[Music::TITLE]" => $title,
     "[Music::ARTIST]" => $artist,
