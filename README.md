@@ -3,7 +3,7 @@
 音乐图片生成
 
 # 使用
-`composer install`和`pnpm install`（其实npm也可以）
+`pip install -r requirements.txt`和`playwright install firefox`
 GET传入参数：title标题，artist作者，cover封面链接，lyrics歌词链接即可
 
 # 修改字体
