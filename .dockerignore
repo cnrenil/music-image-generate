@@ -1,0 +1,6 @@
+# Useless
+cache/
+__pycache__/
+.git/
+.cache/
+.gitignore/

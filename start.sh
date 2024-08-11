@@ -1,1 +1,2 @@
-gunicorn -c gunicorn.conf.py app:app
+uvicorn app:app --host 0.0.0.0 --port 3006 --reload
+

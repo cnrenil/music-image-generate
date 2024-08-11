@@ -1,0 +1,7 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3006:8000"  # 修改端口映射
+    volumes:
+      - ./cache:/app/cache  # 映射缓存目录
