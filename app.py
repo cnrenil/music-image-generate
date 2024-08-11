@@ -5,14 +5,24 @@ import re
 import logging
 import time
 from threading import Thread, Event
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Depends
 from fastapi.responses import StreamingResponse
+from contextlib import asynccontextmanager
 from playwright.async_api import async_playwright
 from typing import Optional
-import httpx  # 使用 httpx 替代 requests
+import httpx
 
 # 配置 FastAPI 应用
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 启动时执行的逻辑
+    cache_cleaner = CacheCleaner(CACHE_DIR, CACHE_EXPIRATION)
+    app.state.cache_cleaner = cache_cleaner
+    yield
+    # 关闭时执行的逻辑
+    cache_cleaner.stop()
+
+app = FastAPI(lifespan=lifespan)
 
 # 配置日志
 logger = logging.getLogger('uvicorn')
@@ -48,19 +58,12 @@ class CacheCleaner:
         self.thread.join()
         logger.info("缓存清理线程已停止。")
 
-# 启动缓存清理器
-cache_cleaner = CacheCleaner(CACHE_DIR, CACHE_EXPIRATION)
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    cache_cleaner.stop()
-
 @app.get("/")
 async def generate_image_endpoint(
     cover: str = 'cover.jpg',  # 封面图像的 URL
     title: str = 'Sample Song',  # 标题
     artist: str = 'Sample Artist',  # 艺术家
-    lyrics: Optional[str] = None  # 歌词 URL
+    lyrics: Optional[str] = None  # 歌词内容
 ):
     # 检查缓存
     hash_input = f"{cover}_{title}_{artist}_{lyrics}".encode('utf-8')
@@ -71,7 +74,7 @@ async def generate_image_endpoint(
         logger.info(f"提供缓存中的图像: {output_path}")
         return StreamingResponse(open(output_path, "rb"), media_type="image/png")
 
-    # 处理歌词
+    # 处理歌词内容
     if lyrics:
         lyrics_content = await fetch_lyrics(lyrics)
     else:
@@ -165,7 +168,7 @@ async def generate_image(cover_base64: str, title: str, artist: str, lyrics_cont
         "[Music::IMAGE]": cover_base64,  # 使用 Base64 编码的封面图像
         "[Music::TITLE]": title,
         "[Music::ARTIST]": artist,
-        "[Music::LYRICS]": lyrics_content
+        "[Music::LYRICS]": lyrics_content  # 使用处理后的歌词内容
     }
 
     for key, value in placeholders.items():
