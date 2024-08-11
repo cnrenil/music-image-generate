@@ -3,5 +3,8 @@ services:
     build: .
     ports:
       - "3006:8000"  # 修改端口映射
+    dns:
+      - 8.8.8.8
     volumes:
-      - ./cache:/app/cache  # 映射缓存目录
+      - .:/app/
+        #      - ./cache:/app/cache  # 映射缓存目录

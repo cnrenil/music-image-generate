@@ -5,9 +5,9 @@
 # 使用
 `pip install -r requirements.txt`和`playwright install firefox`
 GET传入参数：title标题，artist作者，cover封面链接，lyrics歌词链接即可
-
+如果你有Docker，可以直接`docker compose up -d`自动构建并运行，端口在3006
 # 修改字体
-编辑`index.php`内部的字体设置即可，记得修改模板HTML的字体为相应字体族
+编辑`app.py`内部的字体设置即可，记得修改模板HTML的字体为相应字体族
 
 # 预览
 
