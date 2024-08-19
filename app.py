@@ -5,12 +5,13 @@ import re
 import logging
 import time
 from threading import Thread, Event
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.responses import StreamingResponse
 from contextlib import asynccontextmanager
 from playwright.async_api import async_playwright
 from typing import Optional
 import httpx
+
 
 # 配置 FastAPI 应用
 @asynccontextmanager
@@ -22,6 +23,7 @@ async def lifespan(app: FastAPI):
     # 关闭时执行的逻辑
     cache_cleaner.stop()
 
+
 app = FastAPI(lifespan=lifespan)
 
 # 配置日志
@@ -31,7 +33,9 @@ logger.setLevel(logging.DEBUG)
 CACHE_DIR = os.path.join(os.getcwd(), 'cache')
 CACHE_EXPIRATION = 3600  # 默认1小时
 
+
 class CacheCleaner:
+
     def __init__(self, cache_dir: str, expiration: int):
         self.cache_dir = cache_dir
         self.expiration = expiration
@@ -44,13 +48,16 @@ class CacheCleaner:
             now = time.time()
             for filename in os.listdir(self.cache_dir):
                 file_path = os.path.join(self.cache_dir, filename)
-                if os.path.isfile(file_path) and (now - os.path.getmtime(file_path)) > self.expiration:
+                if os.path.isfile(file_path) and (
+                        now - os.path.getmtime(file_path)) > self.expiration:
                     try:
                         os.remove(file_path)
                         logger.info(f"删除过期缓存文件: {filename}")
                     except Exception as e:
                         logger.error(f"删除文件 {filename} 时出错: {e}")
-            logger.debug(f"检查完成，检查时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now))}")
+            logger.debug(
+                f"检查完成，检查时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now))}"
+            )
             self.stop_event.wait(self.expiration // 2)
 
     def stop(self):
@@ -58,12 +65,13 @@ class CacheCleaner:
         self.thread.join()
         logger.info("缓存清理线程已停止。")
 
+
 @app.get("/")
 async def generate_image_endpoint(
-    cover: str = 'cover.jpg',  # 封面图像的 URL
-    title: str = 'Sample Song',  # 标题
-    artist: str = 'Sample Artist',  # 艺术家
-    lyrics: Optional[str] = None  # 歌词内容
+        cover: str = 'cover.jpg',  # 封面图像的 URL
+        title: str = 'Sample Song',  # 标题
+        artist: str = 'Sample Artist',  # 艺术家
+        lyrics: Optional[str] = None  # 歌词内容
 ):
     # 检查缓存
     hash_input = f"{cover}_{title}_{artist}_{lyrics}".encode('utf-8')
@@ -72,7 +80,8 @@ async def generate_image_endpoint(
 
     if os.path.exists(output_path):
         logger.info(f"提供缓存中的图像: {output_path}")
-        return StreamingResponse(open(output_path, "rb"), media_type="image/png")
+        return StreamingResponse(open(output_path, "rb"),
+                                 media_type="image/png")
 
     # 处理歌词内容
     if lyrics:
@@ -88,20 +97,24 @@ async def generate_image_endpoint(
         return "封面图像下载失败", 500
 
     # 设置字体路径
-    font_path = os.path.join(os.getcwd(), 'fonts/HanYiWenHei/HYWenHei-65W-3.ttf')
+    font_path = os.path.join(os.getcwd(),
+                             'fonts/HanYiWenHei/HYWenHei-65W-3.ttf')
 
     # 生成图片并检查结果
     start_time = time.time()
-    success = await generate_image(cover_base64, title, artist, lyrics_content, font_path, output_path)
+    success = await generate_image(cover_base64, title, artist, lyrics_content,
+                                   font_path, output_path)
     elapsed_time = time.time() - start_time
     logger.debug(f"图像生成耗时 {elapsed_time:.2f} 秒")
 
     if success:
         logger.info(f"图像生成并缓存: {output_path}")
-        return StreamingResponse(open(output_path, "rb"), media_type="image/png")
+        return StreamingResponse(open(output_path, "rb"),
+                                 media_type="image/png")
     else:
         logger.error("图像生成失败")
         return "图像生成失败", 500
+
 
 async def fetch_lyrics(lyrics_url: str, max_lines: int = 150) -> str:
     try:
@@ -116,7 +129,8 @@ async def fetch_lyrics(lyrics_url: str, max_lines: int = 150) -> str:
         return f"获取歌词时出错: {e}"
 
     # 处理特殊字符
-    lyrics = lyrics.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    lyrics = lyrics.replace('&', '&amp;').replace('<',
+                                                  '&lt;').replace('>', '&gt;')
     lyrics = re.sub(r'\[\d{2}:\d{2}\.\d{2,3}\]', '', lyrics)
 
     # 截断歌词行数
@@ -127,6 +141,7 @@ async def fetch_lyrics(lyrics_url: str, max_lines: int = 150) -> str:
         logger.debug("歌词行数超过最大限制，已应用截断")
 
     return '<br>'.join(lyrics_lines)
+
 
 async def download_cover_image_as_base64(cover_url: str) -> Optional[str]:
     try:
@@ -141,7 +156,10 @@ async def download_cover_image_as_base64(cover_url: str) -> Optional[str]:
         logger.error(f"下载封面图像时出错: {e}")
         return None
 
-async def generate_image(cover_base64: str, title: str, artist: str, lyrics_content: str, font_path: str, output_path: str) -> bool:
+
+async def generate_image(cover_base64: str, title: str, artist: str,
+                         lyrics_content: str, font_path: str,
+                         output_path: str) -> bool:
     template_path = 'template.html'
     try:
         with open(template_path, 'r', encoding='utf-8') as file:
@@ -185,4 +203,3 @@ async def generate_image(cover_base64: str, title: str, artist: str, lyrics_cont
         logger.debug(f"图像成功生成并保存到: {output_path}")
 
     return True
-
