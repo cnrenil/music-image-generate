@@ -50,7 +50,7 @@ class CacheCleaner:
                         logger.info(f"删除过期缓存文件: {filename}")
                     except Exception as e:
                         logger.error(f"删除文件 {filename} 时出错: {e}")
-            # 睡眠一会儿再进行下一次检查
+            logger.debug(f"检查完成，检查时间: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(now))}")
             self.stop_event.wait(self.expiration // 2)
 
     def stop(self):
@@ -123,7 +123,7 @@ async def fetch_lyrics(lyrics_url: str, max_lines: int = 150) -> str:
     lyrics_lines = lyrics.splitlines()
     if len(lyrics_lines) > max_lines:
         lyrics_lines = lyrics_lines[:max_lines]
-        lyrics_lines.append('歌词已截断...')
+        lyrics_lines.append('歌词太长，剩下的省略了...')
         logger.debug("歌词行数超过最大限制，已应用截断")
 
     return '<br>'.join(lyrics_lines)
