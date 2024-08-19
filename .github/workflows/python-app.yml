@@ -36,4 +36,11 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
+        playwright install firefox
         pytest
+    - name: Upload PNG artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: png-artifacts
+        path: cache/*.png
