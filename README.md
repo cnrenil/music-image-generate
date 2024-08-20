@@ -18,7 +18,7 @@ GET传入参数：title标题，artist作者，cover封面链接，lyrics歌词�
 
 Chat GPT原理🤣
 
-先生成一个好看点的模板，然后生成一个Python，把HTML截图就好了。composer install和npm install一下，放在环境里面就可以跑，不推荐放在公网环境下
+先生成一个好看点的模板，然后生成一个Python，把HTML截图就好了。不推荐放在公网环境下
 
 # 协议/LICENSE
 
